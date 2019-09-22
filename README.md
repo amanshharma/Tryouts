@@ -1,3 +1,3 @@
 ## Just Tryouts Here
 
-These apps are based on the tutorial by GQL Bootcamp training by Andrew Mead. 
+These apps are based on the Gql Bootcamp training by Andrew Mead. 
