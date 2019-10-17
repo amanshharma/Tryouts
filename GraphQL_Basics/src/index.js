@@ -8,14 +8,14 @@ const Posts = [
 
 const Users = [
   { id: 1, name: "aman", email: "a@gmail.com", age: 29, post: 12, comment: 21 },
-  { id: 3, name: "aman", email: "a@gmail.com", age: 29, post: 12 },
-  { id: 2, name: "aman", email: "a@gmail.com", age: 29, post: 13 }
+  { id: 3, name: "aman", email: "a@gmail.com", age: 29, post: 12, comment: 21 },
+  { id: 2, name: "aman", email: "a@gmail.com", age: 29, post: 13, comment: 21 }
 ];
 
 const Comments = [
   { id: 21, text: "comment1", author: 3 },
   { id: 22, text: "comment1", author: 3 },
-  { id: 23, text: "comment1", author: 1 },
+  { id: 21, text: "comment1", author: 1 },
   { id: 24, text: "comment1", author: 2 },
   { id: 25, text: "comment1", author: 1 }
 ];
@@ -27,12 +27,17 @@ type Query {
   Comments(query: String): [Comment!]!
 }
 
+type Mutation {
+  CreateUser(name: String, age: Int): User
+}
+
 type User {
   id: ID!
   name: String
-  age: String
-  email: String!
+  age: Int
+  email: String
   post: [Post]
+  comment: [Comment]
 }
 
 type Post {
@@ -63,6 +68,11 @@ const resolvers = {
       return Comments;
     }
   },
+  Mutation: {
+    CreateUser(parent, args, ctx, info) {
+      console.log("create user --", args);
+    }
+  },
   Post: {
     author(parent, args, ctx, info) {
       console.log("parent", parent);
@@ -72,11 +82,18 @@ const resolvers = {
   User: {
     post(parent, args, ctx, info) {
       return [Posts.find(post => parent.post === post.id)];
+    },
+    comment(parent, args, ctx, info) {
+      console.log("parent.comment", parent.comment);
+      //console.log('parent.comment',parent.comment);
+      return Comments.filter(comment => {
+        return parent.comment === comment.id;
+      });
     }
   },
   Comment: {
     author(parent, args, ctx, info) {
-      return;
+      return Users.map(user => parent.author === user.id);
     }
   }
 };
