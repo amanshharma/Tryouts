@@ -1,29 +1,82 @@
 import { GraphQLServer } from "graphql-yoga";
 
+const Posts = [
+  { id: 11, title: "one", body: "aaaa", published: true, author: 1 },
+  { id: 12, title: "two", body: "aaaa", published: true, author: 1 },
+  { id: 13, title: "three", body: "aaaa", published: true, author: 2 }
+];
+
+const Users = [
+  { id: 1, name: "aman", email: "a@gmail.com", age: 29, post: 12, comment: 21 },
+  { id: 3, name: "aman", email: "a@gmail.com", age: 29, post: 12 },
+  { id: 2, name: "aman", email: "a@gmail.com", age: 29, post: 13 }
+];
+
+const Comments = [
+  { id: 21, text: "comment1", author: 3 },
+  { id: 22, text: "comment1", author: 3 },
+  { id: 23, text: "comment1", author: 1 },
+  { id: 24, text: "comment1", author: 2 },
+  { id: 25, text: "comment1", author: 1 }
+];
+
 const typeDefs = `
 type Query {
-  hello: String!
-  country: String!
-  greeting(name: String): String!
-  add(a: Float, b: Float): Float!
+  Users(query: String): [User!]!
+  Posts(query: String): [Post!]!
+  Comments(query: String): [Comment!]!
+}
 
+type User {
+  id: ID!
+  name: String
+  age: String
+  email: String!
+  post: [Post]
+}
+
+type Post {
+  id: ID!
+  title: String!
+  body: String!
+  published: Boolean!
+  author: User
+}
+
+type Comment {
+  id: ID!
+  text: String!
+  author: [User]
 }
 `;
 const resolvers = {
   Query: {
-    hello() {
-      return "Aman is here";
+    Posts() {
+      return Posts;
     },
-    country() {
-      return "India";
+
+    Users() {
+      return Users;
     },
-    greeting(parent, args, ctx, info) {
-      console.log("args", args);
-      return "Hey yo";
-    },
-    add(parent, args, ctx, info) {
-      const { a, b } = args;
-      return a + b;
+
+    Comments() {
+      return Comments;
+    }
+  },
+  Post: {
+    author(parent, args, ctx, info) {
+      console.log("parent", parent);
+      return Users.find(user => parent.author === user.id);
+    }
+  },
+  User: {
+    post(parent, args, ctx, info) {
+      return [Posts.find(post => parent.post === post.id)];
+    }
+  },
+  Comment: {
+    author(parent, args, ctx, info) {
+      return;
     }
   }
 };
