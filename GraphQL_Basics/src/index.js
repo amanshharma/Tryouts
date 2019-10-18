@@ -1,67 +1,7 @@
 import { GraphQLServer } from "graphql-yoga";
 import uuidv4 from "uuid/v4";
+import db from "./db";
 
-const Posts = [
-  { id: 11, title: "one", body: "aaaa", published: true, author: 1 },
-  { id: 12, title: "two", body: "aaaa", published: true, author: 1 },
-  { id: 13, title: "three", body: "aaaa", published: true, author: 2 }
-];
-
-const Users = [
-  { id: 1, name: "aman", email: "a@gmail.com", age: 29, post: 12, comment: 21 },
-  { id: 3, name: "aman", email: "a@gmail.com", age: 29, post: 12, comment: 21 },
-  { id: 2, name: "aman", email: "a@gmail.com", age: 29, post: 13, comment: 21 }
-];
-
-const Comments = [
-  { id: 21, text: "comment1", author: 3 },
-  { id: 22, text: "comment1", author: 3 },
-  { id: 21, text: "comment1", author: 1 },
-  { id: 24, text: "comment1", author: 2 },
-  { id: 25, text: "comment1", author: 1 }
-];
-
-const typeDefs = `
-type Query {
-  Users(query: String): [User!]!
-  Posts(query: String): [Post!]!
-  Comments(query: String): [Comment!]!
-}
-
-type Mutation {
-  CreateUser(data: CreateUserInput): User
-  DeleteUser(id: ID): User
-}
-
-input CreateUserInput {
-  name: String
-  age: Int
-  email: String
-}
-
-type User {
-  id: ID!
-  name: String
-  age: Int
-  email: String
-  post: [Post]
-  comment: [Comment]
-}
-
-type Post {
-  id: ID!
-  title: String!
-  body: String!
-  published: Boolean!
-  author: User
-}
-
-type Comment {
-  id: ID!
-  text: String!
-  author: [User]
-}
-`;
 const resolvers = {
   Query: {
     Posts() {
@@ -77,9 +17,11 @@ const resolvers = {
     }
   },
   Mutation: {
-    CreateUser(parent, args, ctx, info) {
+    CreateUser(parent, args, { db }, info) {
       console.log("create user --", args);
-      const isEmailExists = Users.some(user => user.email === args.data.email);
+      const isEmailExists = db.users.some(
+        user => user.email === args.data.email
+      );
       if (isEmailExists) throw new Error("Email already taken");
       const user = {
         id: uuidv4(),
@@ -87,42 +29,45 @@ const resolvers = {
         age: args.data.age,
         email: args.data.email
       };
-      Users.push(user);
+      db.users.push(user);
       return user;
     },
-    DeleteUser(parent, args, ctx, info) {
+    DeleteUser(parent, args, { db }, info) {
       console.log(args);
-      return Users.find(user => user.id == args.id);
+      return db.users.find(user => user.id == args.id);
     }
   },
   Post: {
-    author(parent, args, ctx, info) {
+    author(parent, args, { db }, info) {
       console.log("parent", parent);
-      return Users.find(user => parent.author === user.id);
+      return db.users.find(user => parent.author === user.id);
     }
   },
   User: {
-    post(parent, args, ctx, info) {
-      return [Posts.find(post => parent.post === post.id)];
+    post(parent, args, { db }, info) {
+      return [db.posts.find(post => parent.post === post.id)];
     },
-    comment(parent, args, ctx, info) {
+    comment(parent, args, { db }, info) {
       console.log("parent.comment", parent.comment);
       //console.log('parent.comment',parent.comment);
-      return Comments.filter(comment => {
+      return db.comments.filter(comment => {
         return parent.comment === comment.id;
       });
     }
   },
   Comment: {
-    author(parent, args, ctx, info) {
-      return Users.map(user => parent.author === user.id);
+    author(parent, args, { db }, info) {
+      return db.users.map(user => parent.author === user.id);
     }
   }
 };
 
 const server = new GraphQLServer({
-  typeDefs,
-  resolvers
+  typeDefs: "./src/schema.graphql",
+  resolvers,
+  context: {
+    db
+  }
 });
 
 server.start(() => console.log("Server hasbeen started!!"));

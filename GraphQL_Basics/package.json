@@ -12,6 +12,6 @@
     "uuid": "^3.3.3"
   },
   "scripts": {
-    "start": "nodemon src/index.js --exec babel-node"
+    "start": "nodemon src/index.js --ext js,graphql --exec babel-node"
   }
 }
