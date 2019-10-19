@@ -7,6 +7,11 @@ type Query {
 type Mutation {
   CreateUser(data: CreateUserInput): User
   DeleteUser(id: ID): User
+  UpdateUser(id: ID): User
+}
+
+type Subscription {
+  count: Int!
 }
 
 input CreateUserInput {
