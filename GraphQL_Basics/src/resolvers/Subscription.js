@@ -10,5 +10,10 @@ export default {
       }, 1000);
       return pubsub.asyncIterator("count");
     }
+  },
+  comment: {
+    subscribe(parent, { postId }, { db, pubsub }, info) {
+      return pubsub.asyncIterator("comment");
+    }
   }
 };
