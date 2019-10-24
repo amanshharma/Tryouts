@@ -1,0 +1,4 @@
+{
+  "presets": ["env"], //it is to provide a cohesive behaviour of all plugins
+  "plugins": ["transform-object-rest-spread"] //Needed if we want an other lugin which was not provided by "presets"
+}
