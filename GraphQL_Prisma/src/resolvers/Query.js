@@ -1,13 +1,14 @@
 export default {
-  Posts() {
-    return Posts;
+  Posts(parent, args, { db, prisma }, info) {
+    return db.posts;
   },
 
-  Users() {
-    return Users;
+  Users(parent, args, { db, prisma }, info) {
+    //return Users;
+    return prisma.query.users(null, info);
   },
 
-  Comments() {
-    return Comments;
+  Comments(parent, args, { db }, info) {
+    return db.comments;
   }
 };
